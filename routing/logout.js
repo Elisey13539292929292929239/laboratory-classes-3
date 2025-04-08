@@ -1,11 +1,16 @@
-const path = require("path");
-
 const express = require("express");
-
 const router = express.Router();
 
-router.get("/", (_request, response) => {
-  response.sendFile(path.join(__dirname, "../views", "logout.html"));
+const { LOGOUT_LINKS } = require("../constants/navigation");
+
+router.get("/logout", (_req, res) => {
+  res.render("logout", {
+    headTitle: "Shop - Logout",
+    menuLinks: LOGOUT_LINKS,
+    activeLinkPath: "/logout"
+  });
 });
 
 module.exports = router;
+
+

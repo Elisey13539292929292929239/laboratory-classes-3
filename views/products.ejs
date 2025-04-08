@@ -8,3 +8,31 @@
 <!-- Podpowiedź: <% products.forEach(product => { %> -->
 <!-- Podpowiedź: ... -->
 <!-- Podpowiedź: <% }); %> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= headTitle %></title>
+  <link rel="stylesheet" href="/css/main.css" />
+</head>
+<body>
+  <%- include('partials/navigation', { menuLinks, activeLinkPath }) %>
+
+  <main>
+    <h1 class="heading">Products</h1>
+
+    <% if (products.length > 0) { %>
+      <ul>
+        <% products.forEach(product => {
+          const [_, namePart, descriptionPart] = product.match(/Name:\s*(.*?),\s*Description:\s*(.*)/) || [];
+        %>
+          <li>Name: <%= namePart %>, Description: <%= descriptionPart %></li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <div>No products available.</div>
+    <% } %>
+  </main>
+</body>
+</html>
+

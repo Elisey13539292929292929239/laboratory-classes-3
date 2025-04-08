@@ -1,50 +1,57 @@
-const path = require("path");
-
 const express = require("express");
 const bodyParser = require("body-parser");
 
 const { PORT } = require("./config");
 const logger = require("./utils/logger");
-const productRoutes = require("./routing/product");
+const getFileFromAbsolutePath = require("./utils/getFileFromAbsolutePath");
+
+const productRoutes = require("./routing/products");
 const logoutRoutes = require("./routing/logout");
 const killRoutes = require("./routing/kill");
 const homeRoutes = require("./routing/home");
+
 const { STATUS_CODE } = require("./constants/statusCode");
-// 📦 Dependy the Importer
-// Zaimportuj moduł 'getFileFromAbsolutePath', może Ci się przydać do ustawienia katalogu plików statycznych!
+const { MENU_LINKS } = require("./constants/navigation");
 
 const app = express();
 
-// 🔧 Configo the Setter
-// Zarejestruj "view engine" jako "ejs".
-// Podpowiedź: app.set(...);
-// Zarejestruj "views" jako "views".
-// Podpowiedź: app.set(...);
+// 🔧 View engine setup
+app.set("view engine", "ejs");
+app.set("views", getFileFromAbsolutePath("views"));
 
-// 🔧 Configo the Setter
-// Ustaw publiczny katalog plików statycznych w middleware.
-// Podpowiedź: app.use(express.static(...));
+// 🔧 Static files
+app.use(express.static(getFileFromAbsolutePath("public")));
 
+// 🔧 Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// 🔧 Logger middleware
 app.use((request, _response, next) => {
   const { url, method } = request;
-
   logger.getInfoLog(url, method);
   next();
 });
 
-app.use("/product", productRoutes);
-app.use("/logout", logoutRoutes);
+// 🔧 Routes
+app.use("/products", productRoutes);
+app.use(logoutRoutes);
 app.use("/kill", killRoutes);
 app.use(homeRoutes);
+
+// 🔧 404 handler
 app.use((request, response) => {
   const { url } = request;
 
-  response
-    .status(STATUS_CODE.NOT_FOUND)
-    .sendFile(path.join(__dirname, "./views", "404.html"));
+  response.status(STATUS_CODE.NOT_FOUND).render("404", {
+    headTitle: "404 - Page Not Found",
+    menuLinks: MENU_LINKS,
+    activeLinkPath: url
+  });
+
   logger.getErrorLog(url);
 });
 
-app.listen(PORT);
+// 🔧 Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
